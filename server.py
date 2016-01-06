@@ -32,7 +32,7 @@ class MyWebServer(SocketServer.BaseRequestHandler):
     def handle(self):
         self.data = self.request.recv(1024).strip()
         print ("Got a request of: %s\n" % self.data)
-        self.request.sendall("OK")
+        self.request.sendall("I can start edit it.")
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
