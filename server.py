@@ -34,13 +34,8 @@ class MyWebServer(SocketServer.BaseRequestHandler):
         self.data = self.request.recv(1024).strip()
         selfDataList = self.data.split()
         root = selfDataList[1]
-        #print ("Got a request of: %s\n" % self.data)
-        #self.request.sendall("This is the first edition.")
 
-        # using for security
-        if "../" in root:
-            self.request.sendall("HTTP/1.1 404 Bad Request\n")
-            return
+        #print(root)
 
         # check the root to get the path of file 
         if root[0]  == "/":
@@ -51,12 +46,29 @@ class MyWebServer(SocketServer.BaseRequestHandler):
 
         # get the local path
         localPath = os.path.normpath(filePath)
-        self.request.sendall(localPath) # testing.
+        #print(localPath)
 
-        
+        # open the file and read
+        try:
+            theFile = open(localPath, 'r')
+
+            contentType = filePath.split('.')[-1]
+            # get head
+            header = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/" + contentType + "; charset=UTF-8\r\n"
+            content = theFile.read()
+            print("=================================\n" + content + "\n===============================")
+            contentLength = "Content-Length:" + str(len(content)) + "\n"
+
+            theFile.close()
+
+        except IOError:
+            header = "HTTP/1.1 404 Not Found\n"
+            content = "\n"
+            contentLength = "Content-Length: 0 \n"
 
 
-
+        # display results
+        self.request.sendall(header + "\r\n" + content)# + contentLength)
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
