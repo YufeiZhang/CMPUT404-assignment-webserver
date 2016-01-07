@@ -26,13 +26,37 @@ import SocketServer
 
 # try: curl -v -X GET http://127.0.0.1:8080/
 
+import os
 
 class MyWebServer(SocketServer.BaseRequestHandler):
     
     def handle(self):
         self.data = self.request.recv(1024).strip()
-        print ("Got a request of: %s\n" % self.data)
-        self.request.sendall("I can start edit it.")
+        selfDataList = self.data.split()
+        root = selfDataList[1]
+        #print ("Got a request of: %s\n" % self.data)
+        #self.request.sendall("This is the first edition.")
+
+        # using for security
+        if "../" in root:
+            self.request.sendall("HTTP/1.1 404 Bad Request\n")
+            return
+
+        # check the root to get the path of file 
+        if root[0]  == "/":
+            if root[-1] == '/':
+                filePath = os.getcwd() + "/www" + root + "index.html"
+            else:
+                filePath = os.getcwd() + "/www" + root
+
+        # get the local path
+        localPath = os.path.normpath(filePath)
+        self.request.sendall(localPath) # testing.
+
+        
+
+
+
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
