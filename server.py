@@ -32,6 +32,7 @@ class MyWebServer(SocketServer.BaseRequestHandler):
     
     def handle(self):
         self.data = self.request.recv(1024).strip()
+        print ("Got a request of: %s\n" % self.data)
 
         # initialize header and fileStr
         header, fileStr = "HTTP/1.1 404 Not Found\n", '\n'
