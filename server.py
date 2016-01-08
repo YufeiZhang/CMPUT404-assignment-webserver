@@ -32,43 +32,40 @@ class MyWebServer(SocketServer.BaseRequestHandler):
     
     def handle(self):
         self.data = self.request.recv(1024).strip()
-        selfDataList = self.data.split()
-        root = selfDataList[1]
 
-        #print(root)
+        # initialize header and fileStr
+        header, fileStr = "HTTP/1.1 404 Not Found\n", '\n'
 
-        # check the root to get the path of file 
-        if root[0]  == "/":
-            if root[-1] == '/':
-                filePath = os.getcwd() + "/www" + root + "index.html"
+        # get the path
+        path = self.data.split()[1]
+
+        # check the path to get full path to files
+        if path[0]  == '/':
+            if path[-1] == '/':
+                fullPath = os.getcwd() + "/www" + path + "index.html"
             else:
-                filePath = os.getcwd() + "/www" + root
+                fullPath = os.getcwd() + "/www" + path
 
-        # get the local path
-        localPath = os.path.normpath(filePath)
-        #print(localPath)
+            # get the local path
+            localPath = os.path.normpath(fullPath)
 
-        # open the file and read
-        try:
-            theFile = open(localPath, 'r')
+            # update fileStr and header
+            try:
+                # read the file and update fileStr
+                theFile = open(localPath, 'r')
+                fileStr = theFile.read()
+                theFile.close()
 
-            contentType = filePath.split('.')[-1]
-            # get head
-            header = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/" + contentType + "; charset=UTF-8\r\n"
-            content = theFile.read()
-            print("=================================\n" + content + "\n===============================")
-            contentLength = "Content-Length:" + str(len(content)) + "\n"
+                # update header
+                docType = fullPath.split('.')[-1]
+                header = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/" + docType + "; charset=UTF-8\r\n"
 
-            theFile.close()
+            # Raised IOError when the built-in open() function fails
+            except IOError:
+                pass
 
-        except IOError:
-            header = "HTTP/1.1 404 Not Found\n"
-            content = "\n"
-            contentLength = "Content-Length: 0 \n"
-
-
-        # display results
-        self.request.sendall(header + "\r\n" + content)# + contentLength)
+        # display the page
+        self.request.sendall(header + "\r\n" + fileStr)
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
