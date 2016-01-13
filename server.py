@@ -57,8 +57,7 @@ class MyWebServer(SocketServer.BaseRequestHandler):
                 # update header
                 docType = fullPath.split('.')[-1]
                 header = "HTTP/1.1 200 OK\r\n" + \
-                         "Content-Type: text/" + docType + "; " + \
-                         "charset=UTF-8\r\n"
+                         "Content-Type: text/" + docType + ";charset=UTF-8\r\n"
 
             # Raised IOError when the built-in open() function fails
             except IOError:
