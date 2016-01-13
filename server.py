@@ -41,6 +41,11 @@ class MyWebServer(SocketServer.BaseRequestHandler):
         if path[0]  == '/':
             if path[-1] == '/':
                 fullPath = os.getcwd() + "/www" + path + "index.html"
+            # this elif is for security test 
+            elif "../" in path:
+                header, fileStr = "HTTP/1.1 404 Not Found\n", '\n'
+                self.request.sendall(header + "\r\n" + fileStr)
+                return
             else:
                 fullPath = os.getcwd() + "/www" + path
 
