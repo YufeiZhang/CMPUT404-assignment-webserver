@@ -38,35 +38,34 @@ class MyWebServer(SocketServer.BaseRequestHandler):
         path = self.data.split()[1]
 
         # check the path to get full path to files
-        if path[0]  == '/':
-            if path[-1] == '/':
-                fullPath = os.getcwd() + "/www" + path + "index.html"
-            # this elif is for security test 
-            elif "../" in path:
-                header, fileStr = "HTTP/1.1 404 Not Found\n", '\n'
-                self.request.sendall(header + "\r\n" + fileStr)
-                return
-            else:
-                fullPath = os.getcwd() + "/www" + path
+        if path[-1] == '/':
+            fullPath = os.getcwd() + "/www" + path + "index.html"
+        # this elif is for security test 
+        elif "../" in path:
+            header, fileStr = "HTTP/1.1 404 Not Found\n", '\n'
+            self.request.sendall(header + "\r\n" + fileStr)
+            return
+        else:
+            fullPath = os.getcwd() + "/www" + path
 
-            # get the local path
-            localPath = os.path.normpath(fullPath)
+        # get the local path
+        localPath = os.path.normpath(fullPath)
 
-            # update fileStr and header
-            try:
-                # read the file and update fileStr
-                theFile = open(localPath, 'r')
-                fileStr = theFile.read()
-                theFile.close()
+        # update fileStr and header
+        try:
+            # read the file and update fileStr
+            theFile = open(localPath, 'r')
+            fileStr = theFile.read()
+            theFile.close()
 
-                # update header
-                docType = fullPath.split('.')[-1]
-                header = "HTTP/1.1 200 OK\r\n" + \
-                         "Content-Type: text/" + docType + ";charset=UTF-8\r\n"
+            # update header
+            docType = fullPath.split('.')[-1]
+            header = "HTTP/1.1 200 OK\r\n" + \
+                     "Content-Type: text/" + docType + ";charset=UTF-8\r\n"
 
-            # Raised IOError when the built-in open() function fails
-            except IOError:
-                header, fileStr = "HTTP/1.1 404 Not Found\n", '\n'
+        # Raised IOError when the built-in open() function fails
+        except IOError:
+            header, fileStr = "HTTP/1.1 404 Not Found\n", '\n'
 
         # display the page
         self.request.sendall(header + "\r\n" + fileStr)
