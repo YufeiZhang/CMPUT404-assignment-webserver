@@ -34,9 +34,6 @@ class MyWebServer(SocketServer.BaseRequestHandler):
         self.data = self.request.recv(1024).strip()
         print ("Got a request of: %s\n" % self.data)
 
-        # initialize header and fileStr
-        header, fileStr = "HTTP/1.1 404 Not Found\n", '\n'
-
         # get the path
         path = self.data.split()[1]
 
@@ -59,11 +56,13 @@ class MyWebServer(SocketServer.BaseRequestHandler):
 
                 # update header
                 docType = fullPath.split('.')[-1]
-                header = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/" + docType + "; charset=UTF-8\r\n"
+                header = "HTTP/1.1 200 OK\r\n" + \
+                         "Content-Type: text/" + docType + "; " + \
+                         "charset=UTF-8\r\n"
 
             # Raised IOError when the built-in open() function fails
             except IOError:
-                pass
+                header, fileStr = "HTTP/1.1 404 Not Found\n", '\n'
 
         # display the page
         self.request.sendall(header + "\r\n" + fileStr)
